@@ -43,6 +43,8 @@ dependencies {
     // healtcheck!
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
+    implementation 'org.web3j:core:4.10.3'
+
 }
 
 test {
