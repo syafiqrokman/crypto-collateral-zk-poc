@@ -1,0 +1,104 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.2.4'
+    id 'io.spring.dependency-management' version '1.1.4'
+
+    // 🔍 Code Quality
+    id 'checkstyle'
+    id 'pmd'
+    id 'com.github.spotbugs' version '5.0.13'
+
+    // 🔐 Dependency Security
+    id 'org.owasp.dependencycheck' version '8.4.2'
+
+    // ✅ Test Coverage
+    id 'jacoco'
+}
+
+group = 'com.web3company'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '17'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // ✅ Core Spring Boot
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+    // ✅ In-Memory DB for dev & testing
+    runtimeOnly 'com.h2database:h2'
+
+    // ✅ PostgreSQL for future production DB
+    runtimeOnly 'org.postgresql:postgresql'
+
+    // ✅ Spring Boot Test Suite
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    // ✅ Mockito + JSON
+    testImplementation 'org.mockito:mockito-core:5.11.0'
+    testImplementation 'com.fasterxml.jackson.core:jackson-databind'
+    // healtcheck!
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+}
+
+test {
+    useJUnitPlatform()
+}
+
+
+checkstyle {
+    toolVersion = '10.12.2'
+    configFile = rootProject.file('config/checkstyle/checkstyle.xml')
+    ignoreFailures = true // ✅ allow warnings but don’t fail build
+    showViolations = true
+
+}
+
+pmd {
+    toolVersion = '6.55.0'
+    ruleSets = []
+    ruleSetFiles = files("config/pmd/pmd-ruleset.xml")
+}
+
+spotbugs {
+    toolVersion = '4.8.3'
+    ignoreFailures = false
+    showProgress = true
+    effort = 'max'
+    reportLevel = 'high'
+}
+
+jacoco {
+    toolVersion = "0.8.8"
+}
+
+tasks.withType(Test) {
+    useJUnitPlatform()
+    finalizedBy jacocoTestReport
+}
+
+tasks.withType(com.github.spotbugs.snom.SpotBugsTask) {
+    reports {
+        html.enabled = true
+        html.destination = file("$buildDir/reports/spotbugs/spotbugs.html")
+        xml.enabled = false // or true if you want both
+    }
+}
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required = true
+        html.required = true
+    }
+}
+
+dependencyCheck {
+    suppressionFile = 'dependency-check-suppress.xml'
+    failBuildOnCVSS = 7
+    analyzers.assemblyEnabled = false
+}

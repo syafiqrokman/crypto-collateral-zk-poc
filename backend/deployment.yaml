@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: collateral-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: collateral-app
+  template:
+    metadata:
+      labels:
+        app: collateral-app
+    spec:
+      containers:
+        - name: collateral-container
+          image: syafiqrokmandemocollateral.azurecr.io/collateral-service:latest
+          ports:
+            - containerPort: 8080
+      imagePullSecrets: []
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: collateral-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: collateral-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080

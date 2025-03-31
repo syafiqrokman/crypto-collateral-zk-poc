@@ -1,0 +1,114 @@
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  GRADLE_USER_HOME: $(Pipeline.Workspace)/.gradle
+
+stages:
+  - stage: BuildTestScan
+    displayName: Build, Test, and Scan
+    jobs:
+      - job: Build
+        displayName: Build & Test
+        steps:
+          - task: JavaToolInstaller@0
+            inputs:
+              versionSpec: '17'
+              jdkArchitectureOption: 'x64'
+              jdkSourceOption: 'PreInstalled'
+              javaHomeOption: 'Install'
+
+          - task: Gradle@3
+            inputs:
+              gradleWrapperFile: 'gradlew'
+              tasks: 'clean build jacocoTestReport checkstyleMain pmdMain spotbugsMain'
+              publishJUnitResults: true
+              testResultsFiles: '**/build/test-results/test/TEST-*.xml'
+              javaHomeOption: 'Path'
+              jdkUserInputPath: '$(JAVA_HOME)'
+
+          - task: Bash@3
+            displayName: 'Install OWASP Dependency Check'
+            inputs:
+              targetType: 'inline'
+              script: |
+                curl -L -o dependency-check.zip https://github.com/jeremylong/DependencyCheck/releases/download/v8.4.0/dependency-check-8.4.0-release.zip
+                unzip -q dependency-check.zip -d dc
+                chmod +x dc/dependency-check/bin/dependency-check.sh
+
+          - task: Bash@3
+            displayName: 'Run Dependency Check'
+            inputs:
+              targetType: 'inline'
+              script: |
+                ./dc/dependency-check/bin/dependency-check.sh \
+                  --project "CollateralService" \
+                  --scan . \
+                  --format HTML \
+                  --out $(Build.ArtifactStagingDirectory)/dependency-check
+
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish Dependency Check Report'
+            inputs:
+              PathtoPublish: '$(Build.ArtifactStagingDirectory)/dependency-check'
+              ArtifactName: 'DependencyCheckReport'
+              publishLocation: 'Container'
+
+          - task: PublishTestResults@2
+            condition: succeededOrFailed()
+            displayName: 'Publish JUnit Test Results'
+            inputs:
+              testResultsFiles: '**/build/test-results/test/TEST-*.xml'
+              testRunTitle: 'JUnit Test Results'
+
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish JUnit XML Test Results'
+            inputs:
+              PathtoPublish: '$(System.DefaultWorkingDirectory)/build/test-results/test'
+              ArtifactName: 'JUnitResults'
+              publishLocation: 'Container'
+
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish JaCoCo Coverage Report'
+            inputs:
+              PathtoPublish: '$(System.DefaultWorkingDirectory)/build/reports/jacoco/test/html'
+              ArtifactName: 'CoverageReport'
+              publishLocation: 'Container'
+
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish PMD Report'
+            inputs:
+              PathtoPublish: '$(System.DefaultWorkingDirectory)/build/reports/pmd'
+              ArtifactName: 'PMDReport'
+              publishLocation: 'Container'
+
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish SpotBugs Report'
+            inputs:
+              PathtoPublish: '$(System.DefaultWorkingDirectory)/build/reports/spotbugs'
+              ArtifactName: 'SpotBugsReport'
+              publishLocation: 'Container'
+
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish CheckStyleReport Report'
+            inputs:
+              PathtoPublish: '$(System.DefaultWorkingDirectory)/build/reports/checkstyle'
+              ArtifactName: 'CheckStyleReport'
+              publishLocation: 'Container'
+
+          - task: Docker@2
+            displayName: Build & Push Docker Image
+            inputs:
+              containerRegistry: 'acr-collateral'  # <-- update this
+              repository: 'collateral-service'
+              command: 'buildAndPush'
+              Dockerfile: 'Dockerfile'
+              tags: |
+                latest
+                $(Build.BuildId)
+
