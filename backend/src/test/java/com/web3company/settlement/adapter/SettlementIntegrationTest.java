@@ -1,4 +1,4 @@
-package com.web3company.settlement;
+package com.web3company.settlement.adapter;
 
 import org.junit.jupiter.api.*;
 

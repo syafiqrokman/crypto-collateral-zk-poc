@@ -1,4 +1,4 @@
-package com.web3company.settlement;
+package com.web3company.settlement.adapter;
 
 import com.web3company.settlement.contracts.SettlementLogger;
 import org.junit.jupiter.api.Test;

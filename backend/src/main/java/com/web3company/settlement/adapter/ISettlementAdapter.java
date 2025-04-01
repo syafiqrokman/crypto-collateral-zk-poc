@@ -1,4 +1,4 @@
-package com.web3company.settlement;
+package com.web3company.settlement.adapter;
 
 import java.math.BigDecimal;
 
