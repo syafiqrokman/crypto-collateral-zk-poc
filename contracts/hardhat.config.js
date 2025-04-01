@@ -21,8 +21,8 @@ module.exports = {
     ]
   },
   paths: {
-    sources: "./contracts",
-    artifacts: "./zk/artifacts",
-    cache: "./zk/cache"
+    sources: "./contracts",          // remains as-is (now pointing to contracts/contracts)
+    artifacts: "./artifacts",
+    cache: "./cache"
   }
 };
