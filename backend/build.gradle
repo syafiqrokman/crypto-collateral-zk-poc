@@ -37,6 +37,11 @@ dependencies {
     // ✅ Spring Boot Test Suite
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
+    // Validation
+    implementation 'jakarta.validation:jakarta.validation-api:3.0.2'
+    implementation 'org.hibernate.validator:hibernate-validator:8.0.0.Final'
+    testImplementation 'org.hibernate.validator:hibernate-validator:8.0.0.Final'
+
     // ✅ Mockito + JSON + JUnit5
     testImplementation 'org.mockito:mockito-core:5.11.0'
     testImplementation 'com.fasterxml.jackson.core:jackson-databind'
@@ -45,7 +50,6 @@ dependencies {
 
     // healthcheck
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
-
     implementation 'org.web3j:core:4.10.3'
 
 }
