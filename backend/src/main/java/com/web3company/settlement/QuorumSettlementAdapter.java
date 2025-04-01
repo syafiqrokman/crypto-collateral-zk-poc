@@ -13,7 +13,6 @@ import org.web3j.tx.gas.DefaultGasProvider;
 import org.web3j.utils.Convert;
 
 import java.math.BigDecimal;
-import java.net.DatagramPacket;
 import java.util.List;
 
 public class QuorumSettlementAdapter implements ISettlementAdapter {
