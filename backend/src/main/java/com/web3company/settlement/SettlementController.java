@@ -36,4 +36,9 @@ public class SettlementController {
     ) throws Exception {
         service.recordZkSettlement(zkHash);
     }
+
+    @GetMapping("/hello")
+    public String securedHelloWorld() {
+        return "Hello World!";
+    }
 }
