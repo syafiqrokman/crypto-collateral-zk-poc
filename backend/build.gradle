@@ -37,27 +37,24 @@ dependencies {
     // ✅ Spring Boot Test Suite
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
-    // ✅ Mockito + JSON
+    // ✅ Mockito + JSON + JUnit5
     testImplementation 'org.mockito:mockito-core:5.11.0'
     testImplementation 'com.fasterxml.jackson.core:jackson-databind'
-    // healtcheck!
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.0'
+
+    // healthcheck
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
     implementation 'org.web3j:core:4.10.3'
 
 }
 
-test {
-    useJUnitPlatform()
-}
-
-
 checkstyle {
     toolVersion = '10.12.2'
     configFile = rootProject.file('config/checkstyle/checkstyle.xml')
     ignoreFailures = true // ✅ allow warnings but don’t fail build
     showViolations = true
-
 }
 
 pmd {
@@ -74,33 +71,29 @@ spotbugs {
     reportLevel = 'high'
 }
 
-jacoco {
-    toolVersion = "0.8.8"
-}
+//jacoco {
+//    toolVersion = "0.8.8"
+//}
 
-tasks.withType(Test) {
+tasks.withType(Test).configureEach {
     useJUnitPlatform()
-    finalizedBy jacocoTestReport
+//    finalizedBy
+//    jacocoTestReport
 }
 
-tasks.withType(com.github.spotbugs.snom.SpotBugsTask) {
-    reports {
-        html.enabled = true
-        html.destination = file("$buildDir/reports/spotbugs/spotbugs.html")
-        xml.enabled = false // or true if you want both
-    }
-}
-
-jacocoTestReport {
-    dependsOn test
-    reports {
-        xml.required = true
-        html.required = true
-    }
-}
+//jacocoTestReport {
+//    dependsOn test
+//    reports {
+//        xml.required = true
+//        html.required = true
+//    }
+//}
 
 dependencyCheck {
     suppressionFile = 'dependency-check-suppress.xml'
     failBuildOnCVSS = 7
     analyzers.assemblyEnabled = false
 }
+
+
+
