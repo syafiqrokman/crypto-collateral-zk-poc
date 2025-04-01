@@ -1,1 +1,20 @@
+# macOS
+.DS_Store
+
+# IDE
 .idea/
+*.iml
+
+# Hardhat + build
+zk/artifacts/
+zk/cache/
+zk/build/
+zk/node_modules/
+
+# Java
+*.class
+build/
+out/
+
+# Generated wrappers
+**/src/main/java/com/web3company/settlement/contracts/SettlementLogger.java
