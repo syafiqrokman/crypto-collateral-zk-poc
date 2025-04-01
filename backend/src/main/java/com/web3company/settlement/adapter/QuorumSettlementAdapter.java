@@ -1,6 +1,8 @@
 package com.web3company.settlement.adapter;
 
 import com.web3company.settlement.contracts.SettlementLogger;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.web3j.crypto.Credentials;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterName;
@@ -15,13 +17,17 @@ import org.web3j.utils.Convert;
 import java.math.BigDecimal;
 import java.util.List;
 
+@Component
 public class QuorumSettlementAdapter implements ISettlementAdapter {
 
     private final Web3j web3;
     private final Credentials credentials;
     private final String CONTRACT_ADDRESS = "0xF216B6b2D9E76F94f97bE597e2Cec81730520585";
 
-    public QuorumSettlementAdapter(String nodeUrl, String privateKey) {
+    public QuorumSettlementAdapter(
+            @Value("${settlement.nodeUrl}") String nodeUrl,
+            @Value("${settlement.privateKey}") String privateKey
+    ) {
         this.web3 = Web3j.build(new HttpService(nodeUrl));
         this.credentials = Credentials.create(privateKey);
     }
