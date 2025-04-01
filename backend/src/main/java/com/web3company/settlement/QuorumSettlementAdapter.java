@@ -1,5 +1,6 @@
 package com.web3company.settlement;
 
+import com.web3company.settlement.contracts.SettlementLogger;
 import org.web3j.crypto.Credentials;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterName;
@@ -13,11 +14,13 @@ import org.web3j.utils.Convert;
 
 import java.math.BigDecimal;
 import java.net.DatagramPacket;
+import java.util.List;
 
 public class QuorumSettlementAdapter implements ISettlementAdapter {
 
     private final Web3j web3;
     private final Credentials credentials;
+    private final String CONTRACT_ADDRESS = "0xF216B6b2D9E76F94f97bE597e2Cec81730520585";
 
     public QuorumSettlementAdapter(String nodeUrl, String privateKey) {
         this.web3 = Web3j.build(new HttpService(nodeUrl));
@@ -73,18 +76,36 @@ public class QuorumSettlementAdapter implements ISettlementAdapter {
         System.out.println("✅ Tx sent. Hash: " + receipt.getTransactionHash());
     }
 
-    public void recordSettlement(String zkHash) throws Exception {
+    public TransactionReceipt recordSettlement(String zkHash) throws Exception {
+        SettlementLogger contract = SettlementLogger.load(
+                CONTRACT_ADDRESS, web3, credentials, new DefaultGasProvider()
+        );
+        TransactionReceipt receipt = contract.recordSettlement(zkHash).send();
+        System.out.println("✅ Settlement tx hash: " + receipt.getTransactionHash());
+        return receipt;
+    }
+
+
+    public List<SettlementLogger.SettlementRecordedEventResponse> getSettlementEvents(TransactionReceipt receipt) {
         SettlementLogger contract = SettlementLogger.load(
                 CONTRACT_ADDRESS, web3, credentials, new DefaultGasProvider()
         );
 
-        TransactionReceipt receipt = contract.recordSettlement(zkHash).send();
-        System.out.println("📦 zkHash recorded. Tx hash: " + receipt.getTransactionHash());
+        return contract.getSettlementRecordedEvents(receipt);
     }
 
 
     public String getAddress() {
         return credentials.getAddress();
     }
+
+    public Web3j getWeb3j() {
+        return this.web3;
+    }
+
+    public Credentials getCredentials() {
+        return this.credentials;
+    }
+
 
 }

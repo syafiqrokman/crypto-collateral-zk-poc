@@ -4,7 +4,6 @@ import org.junit.jupiter.api.*;
 
 import java.math.BigDecimal;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -53,9 +52,12 @@ public class SettlementIntegrationTest {
     @Test
     @Order(3)
     void recordSettlement_success() throws Exception {
-        String zkHash = "zk123example";
+        String zkHash = "0xabc123def4567890";
+
         adapter.recordSettlement(zkHash);
-        System.out.println("✅ zkHash settlement recorded on-chain.");
+
+        System.out.println("✅ zkHash settlement recorded on-chain");
     }
+
 
 }
